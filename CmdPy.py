@@ -37,7 +37,7 @@ COMMANDS_SORTED = sorted(COMMANDS)
 Prints welcome and copyright.
 Version automatically updates from VERSION variable above.
 """
-print(f'CmdPy [Version {VERSION}] | (c) 2021 Fred Pashley\nThis product is protected my a MIT license | All rights reserved')
+print(f'CmdPy [Version {VERSION}] | (c) 2021 Fred Pashley\nThis product is protected by a MIT license | All rights reserved')
 
 """
 Stops the program from quitting after command.
@@ -129,9 +129,14 @@ while True:
             elif len(ARGUMENTS) > 1:
                 print('Unrecognised command line.\nIndex 1 not empty.')
             else:
-                num = int(ARGUMENTS[0])
-                r = random.choice(1,r)
-                print('Random number:',str(r))
+                num = int(ARGUMENTS[0]); l = []
+                for x in range(1, num):
+                    l.append(x)
+                if len(l) == 0:
+                    print('Random number:',str(num))
+                else:
+                    r = random.choice(l)
+                    print('Random number:',str(r))
 
     else:
         print(f"'{COMMAND.lower()}' is not recognised as a command.\nIf this is unexpected, please check the online documentation for help.")
