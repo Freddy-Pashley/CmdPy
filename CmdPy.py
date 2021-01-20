@@ -4,13 +4,12 @@ Product details.
 # Author: Fred Pashley
 # License: MIT
 # Date of creation: 12/01/2021
-# Current Version: 1.0.2
 
 """
 Product version.
 This is the current version, and not always the latest.
 """
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 
 """
 All imports.
@@ -21,6 +20,7 @@ System installes any modules that are not available on local machine.
 import os
 import sys
 import time
+import random
 try:
     import pytz
 except ImportError:
@@ -30,7 +30,7 @@ except ImportError:
 Gets current directory of CmdPy file.
 """
 CURRENTDIR = str(os.path.dirname(os.path.realpath(__file__)))
-COMMANDS = ['HELP', 'EXIT', 'VERSION', 'CLEAR']
+COMMANDS = ['HELP', 'EXIT', 'VERSION', 'CLEAR', 'RANDOM']
 COMMANDS_SORTED = sorted(COMMANDS)
 
 """
@@ -108,6 +108,9 @@ while True:
                 elif help_command == 'CLEAR':
                     print('Clears the screen.\n\nSyntax: CLEAR')
 
+                elif help_command == 'RANDOM':
+                    print('Provides a random number.\n\nSyntax: RANDOM maximum-number')
+
         elif COMMAND == 'EXIT':
             quit()
 
@@ -119,6 +122,16 @@ while True:
                 os.system('cls')
             else:
                 os.system('clear')
+
+        elif COMMAND == 'RANDOM':
+            if ARGUMENTS == []:
+                print('Incomplete command.\nExpected integer at index 0.')
+            elif len(ARGUMENTS) > 1:
+                print('Unrecognised command line.\nIndex 1 not empty.')
+            else:
+                num = int(ARGUMENTS[0])
+                r = random.choice(1,r)
+                print('Random number:',str(r))
 
     else:
         print(f"'{COMMAND.lower()}' is not recognised as a command.\nIf this is unexpected, please check the online documentation for help.")
