@@ -82,10 +82,11 @@ while True:
     if COMMAND in COMMANDS:
         if COMMAND == 'HELP':
             if ARGUMENTS == []:
-                print('For more information on a command, type HELP command-name.\n')
-                for item in COMMANDS_SORTED:
-                    print(item.upper())
-                print('\nYou can also check the online documentation for a more detailed\nexplanation of a command, or if you are having any issues.')
+                print('For more information on a command, type HELP command-name.\n'); string = COMMANDS_SORTED[0]
+                for item in COMMANDS_SORTED[1:]:
+                    string = f'{string}\n{item}'
+                print(string)
+                print('\nYou can also check the online documentation for a more detailed\nexplanation of a command, or if you are having any issues.\nhttps://cmdpy.readthedocs.io/')
             else:
                 """
                 Gets the first arguments and assigns it as the command the user needs help with.
