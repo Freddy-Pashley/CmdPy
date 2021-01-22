@@ -36,7 +36,9 @@ for item in HelpCommand.arguments:
 
 while True:
 
-    rawUserCommand = input('\n{}>'.format(str(os.path.dirname(os.path.realpath(__file__)))))
+    CURRENTDIRECTORY = str(os.path.dirname(os.path.realpath(__file__)))
+
+    rawUserCommand = input('\n{}>'.format(CURRENTDIRECTORY))
 
     UserArguments = []
     if len(rawUserCommand.split()) > 1:
