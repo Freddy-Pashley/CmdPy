@@ -8,11 +8,11 @@ try:
         pass
 except FileNotFoundError:
     with open('debug.log', 'x') as debugfile:
-        debugfile.write(f'[{dt.now()}] debug.log file not found, creating in default directory.')
+        debugfile.write(f'\n[{dt.now()}] debug.log file not found, creating in default directory.')
 
 import time
 
-VERSION = '1.1.1'
+VERSION = '1.1.2'
 
 print('CmdPy [Version {}]\n(c) 2021 Fred Pashley. All rights reserved.'.format(VERSION))
 
@@ -24,15 +24,25 @@ class Command:
 def invalid_line(command):
     print("When using the '{}' command, you provided an invalid command line.".format(command))
 
+def debug(text):
+    try:
+        with open('debug.log', 'a') as debugfile:
+            debugfile.write(f'\n[{dt.now()}] {text}')
+    except FileNotFoundError:
+        with open('debug.log', 'x') as debugfile:
+            debugfile.write(f'\n[{dt.now()}] debug.log file not found, creating in default directory.')
+            debugfile.write(f'\n[{dt.now()}] {text}')
+    finally:
+        print("An error occured. You can check for more details in the 'debug.log' file\nin the same directory as your CmdPy.")
 
-
-HelpCommand = Command('help', ['help', 'ping', 'timer', 'open', 'exit', 'clear', 'dir'])
+HelpCommand = Command('help', ['help', 'ping', 'timer', 'open', 'exit', 'clear', 'dir', 'debug'])
 PingCommand = Command('ping', [])
 TimerCommand = Command('timer', [])
 OpenCommand = Command('open', [])
 ExitCommand = Command('exit', [])
 ClearCommand = Command('exit', [])
 DirCommand = Command('dir', [])
+DebugCommand = Command('debug', ['clear', 'open'])
 
 COMMANDS = []
 for item in HelpCommand.arguments:
@@ -56,7 +66,8 @@ while True:
         if UserCommand == HelpCommand.name:
             if UserArguments == []:
                 print('For more information on a specific command, type HELP command-name')
-                for item in COMMANDS:
+                sort = sorted(COMMANDS)
+                for item in sort:
                     print(item.upper())
             elif UserArguments[0] in HelpCommand.arguments:
                 if UserArguments[0] == 'help':
@@ -73,57 +84,69 @@ while True:
                     print('Clears the screen.\n\nSyntax: CLEAR')
                 elif UserArguments[0] == 'dir':
                     pass
+                elif UserArguments[0] == 'debug':
+                    print('Debugging control panel.\n\nSyntax: DEBUG option\n\nOptions: clear    ... Clears the debug.log file\n         open    ... Opens the debug.log file')
             else:
                 invalid_line('help')
+                debug(f"'{UserArguments[0]}' was not found in the help database.")
         elif UserCommand == PingCommand.name:
             if UserArguments == []:
                 invalid_line('ping')
+                debug("'ping' requires at least one argument, received none")
             else:
                 print(os.system(f'ping {UserArguments[0]}'))
         elif UserCommand == TimerCommand.name:
             if UserArguments == []:
                 invalid_line('timer')
+                debug("'time' requires at least one argument, received none.")
             elif len(UserArguments) > 1:
                 invalid_line('timer')
+                debug("'time' does not expect more than one argument.")
             else:
                 amount = UserArguments[0]
                 numberstring = ''; unit = ''
-                for char in amount:
-                    if char in '0123456789':
-                        if numberstring == '':
-                            numberstring = char
+                try:
+                    for char in amount:
+                        if char in '0123456789':
+                            if numberstring == '':
+                                numberstring = char
+                            else:
+                                numberstring = f'{numberstring}{char}'
                         else:
-                            numberstring = f'{numberstring}{char}'
+                            if unit == '':
+                                unit = char
+                            else:
+                                unit = f'{unit}{char}'
+                except Exception as error:
+                    debug(error)
+                finally:
+                    amount = int(numberstring)
+                    if unit == 's':
+                        print('Timing {} seconds...'.format(str(amount)))
+                        time.sleep(amount)
+                        print('Stopped!')
+                    elif unit == 'm':
+                        print('Timing {} minutes...'.format(str(amount)))
+                        amount = amount * 60
+                        time.sleep(amount)
+                        print('Stopped!')
+                    elif unit == 'h':
+                        print('Timing {} hours...'.format(str(amount)))
+                        amount = amount * 3600
+                        time.sleep(amount)
+                        print('Stopped!')
+                    elif unit == 'ms':
+                        print('Timing {} milli-seconds...'.format(str(amount)))
+                        amount = amount / 1000
+                        time.sleep(amount)
+                        print('Stopped!')
                     else:
-                        if unit == '':
-                            unit = char
-                        else:
-                            unit = f'{unit}{char}'
-                amount = int(numberstring)
-                if unit == 's':
-                    print('Timing {} seconds...'.format(str(amount)))
-                    time.sleep(amount)
-                    print('Stopped!')
-                elif unit == 'm':
-                    print('Timing {} minutes...'.format(str(amount)))
-                    amount = amount * 60
-                    time.sleep(amount)
-                    print('Stopped!')
-                elif unit == 'h':
-                    print('Timing {} hours...'.format(str(amount)))
-                    amount = amount * 3600
-                    time.sleep(amount)
-                    print('Stopped!')
-                elif unit == 'ms':
-                    print('Timing {} milli-seconds...'.format(str(amount)))
-                    amount = amount / 1000
-                    time.sleep(amount)
-                    print('Stopped!')
-                else:
-                    invalid_line('timer')
+                        invalid_line('timer')
+                        debug(f'invalid unit of time. expected [s, m h, ms] but received "{unit}" instead.')
         elif UserCommand == OpenCommand.name:
             if UserArguments == []:
                 invalid_line('open')
+                debug(f"'open' command requires at least 1 argument, but instead got none.")
             else:
                 openstring = UserArguments[0]
                 if '/' in openstring or '\\' in openstring:
@@ -132,21 +155,41 @@ while True:
                         os.startfile(directory)
                     except FileNotFoundError:
                         invalid_line('open')
+                        debug(f'invalid directory given to open')
                 else:
                     try:
                         os.startfile(UserArguments[0])
                     except FileNotFoundError:
                         invalid_line('open')
+                        debug(f'invalid directory given to open')
         elif UserCommand == ExitCommand.name:
             quit()
         elif UserCommand == ClearCommand.name:
-            if os.name == 'nt':
-                os.system('cls')
-            else:
-                os.system('clear')
-        elif UserCommand == DirCommand:
+            try:
+                if os.name == 'nt':
+                    os.system('cls')
+                else:
+                    os.system('clear')
+            except Exception as error:
+                debug(error)
+        elif UserCommand == DirCommand.name:
             pass
+        elif UserCommand == DebugCommand.name:
+            if UserArguments[0] in DebugCommand.arguments:
+                if UserArguments[0] == 'clear':
+                    with open('debug.log', 'w') as f:
+                        pass
+                elif UserArguments[0] == 'open':
+                    try:
+                        os.startfile('debug.log')
+                    except FileNotFoundError:
+                        print('File not found.')
+                        debug('debug.log file not found.')
+            else:
+                invalid_line('debug')
+                debug(f"'debug' requires one valid argument.")
     elif UserCommand == '':
         pass
     else:
         print("'{}' is not recognised as a command.".format(rawUserCommand))
+        debug(f"'{rawUserCommand}' was not a valid command.")
