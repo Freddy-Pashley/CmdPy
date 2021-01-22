@@ -12,7 +12,7 @@ except FileNotFoundError:
 
 import time
 
-VERSION = '1.1.0'
+VERSION = '1.1.1'
 
 print('CmdPy [Version {}]\n(c) 2021 Fred Pashley. All rights reserved.'.format(VERSION))
 
@@ -26,10 +26,13 @@ def invalid_line(command):
 
 
 
-HelpCommand = Command('help', ['help', 'ping', 'timer', 'open'])
+HelpCommand = Command('help', ['help', 'ping', 'timer', 'open', 'exit', 'clear', 'dir'])
 PingCommand = Command('ping', [])
 TimerCommand = Command('timer', [])
 OpenCommand = Command('open', [])
+ExitCommand = Command('exit', [])
+ClearCommand = Command('exit', [])
+DirCommand = Command('dir', [])
 
 COMMANDS = []
 for item in HelpCommand.arguments:
@@ -64,6 +67,12 @@ while True:
                     print('Sets a timer for a certain amount of time.\n\nSyntax: TIMER length\n\nLength    ... NumberUnit\nFor example, TIMER 10ms.\nValid units of time: ms, s, m, h')
                 elif UserArguments[0] == 'open':
                     pass # Add help @MQXO
+                elif UserArguments[0] == 'exit':
+                    print('Exits CmdPy.\n\nSyntax: EXIT')
+                elif UserArguments[0] == 'clear':
+                    print('Clears the screen.\n\nSyntax: CLEAR')
+                elif UserArguments[0] == 'dir':
+                    pass
             else:
                 invalid_line('help')
         elif UserCommand == PingCommand.name:
@@ -128,6 +137,15 @@ while True:
                         os.startfile(UserArguments[0])
                     except FileNotFoundError:
                         invalid_line('open')
+        elif UserCommand == ExitCommand.name:
+            quit()
+        elif UserCommand == ClearCommand.name:
+            if os.name == 'nt':
+                os.system('cls')
+            else:
+                os.system('clear')
+        elif UserCommand == DirCommand:
+            pass
     elif UserCommand == '':
         pass
     else:
