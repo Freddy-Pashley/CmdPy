@@ -12,7 +12,7 @@ except FileNotFoundError:
 
 import time
 
-VERSION = '1.0.1'
+VERSION = '1.1.0'
 
 print('CmdPy [Version {}]\n(c) 2021 Fred Pashley. All rights reserved.'.format(VERSION))
 
@@ -26,9 +26,10 @@ def invalid_line(command):
 
 
 
-HelpCommand = Command('help', ['help', 'ping', 'timer'])
+HelpCommand = Command('help', ['help', 'ping', 'timer', 'open'])
 PingCommand = Command('ping', [])
 TimerCommand = Command('timer', [])
+OpenCommand = Command('open', [])
 
 COMMANDS = []
 for item in HelpCommand.arguments:
@@ -61,6 +62,8 @@ while True:
                     print('Pings the specified host. Returns the average time in milli-seconds.\n\nSyntax: PING host\n\nHost is a required field.')
                 elif UserArguments[0] == 'timer':
                     print('Sets a timer for a certain amount of time.\n\nSyntax: TIMER length\n\nLength    ... NumberUnit\nFor example, TIMER 10ms.\nValid units of time: ms, s, m, h')
+                elif UserArguments[0] == 'open':
+                    pass # Add help @MQXO
             else:
                 invalid_line('help')
         elif UserCommand == PingCommand.name:
@@ -109,6 +112,22 @@ while True:
                     print('Stopped!')
                 else:
                     invalid_line('timer')
+        elif UserCommand == OpenCommand.name:
+            if UserArguments == []:
+                invalid_line('open')
+            else:
+                openstring = UserArguments[0]
+                if '/' in openstring or '\\' in openstring:
+                    directory = UserArguments[0]
+                    try:
+                        os.startfile(directory)
+                    except FileNotFoundError:
+                        invalid_line('open')
+                else:
+                    try:
+                        os.startfile(UserArguments[0])
+                    except FileNotFoundError:
+                        invalid_line('open')
     elif UserCommand == '':
         pass
     else:
